@@ -2,7 +2,7 @@
 // BST.hpp
 // CSE 100 Project 1
 //
-// Last modified by Heitor Schueroff on 01/10/2019
+// Last modified by Sunny Sun and Colby Kure on 01/16/2019
 //
 
 #ifndef BST_HPP
@@ -40,7 +40,7 @@ public:
      * Default destructor. Frees all memory allocated by this BST.
      */
     virtual ~BST() {
-    	if (root = 0){
+    	if (root == 0){
 	    return;
 	}
 	else{
@@ -65,19 +65,19 @@ public:
      */
     virtual bool insert(const Data &item) {
     	if (root == nullptr){
-	    root = new BSTNode(value);
+	    root = new BSTNode<Data>(item);
 	    return true;
 	}
 
-	BSTNode* current = root;
-	BSTNode* prev = nullptr;
+	BSTNode<Data>* current = root;
+	BSTNode<Data>* prev = nullptr;
 	
 	while(current!= nullptr){	
-	    if(value < current->data){
+	    if(item < current->data){
 		prev = current;
 		current = current->left;
 	    }
-	    else if (current->data < value){
+	    else if (current->data < item){
 		prev = current;
 		current = current->right;
 	    }
@@ -86,11 +86,11 @@ public:
 	    }
 	}
 	//prev pointing what it is attached to 
-	if (value < prev->data){
-	    prev->left = new BSTNode(value);
+	if (item < prev->data){
+	    prev->left = new BSTNode<Data>(item);
 	}
 	else {
-	    prev->right = new BSTNode(value);
+	    prev->right = new BSTNode<Data>(item);
 	}
 	return true;
     }
@@ -114,13 +114,13 @@ public:
 	    return typename BST<Data>::iterator(0);
 	}
 
-	BSTNode* current = root;
+	BSTNode<Data>* current = root;
 	
-	while(current!= nullptr){	
-	    if(value < current->data){
+	while(current != nullptr){	
+	    if(item < current->data){
 		current = current->left;
 	    }
-	    else if (current->data < value){
+	    else if (current->data < item){
 		current = current->right;
 	    }
 	    //we found it
@@ -128,6 +128,7 @@ public:
 		return typename BST<Data>::iterator(current);
 	    }
 	}
+	return typename BST<Data>::iterator(0);
     }
 
     /** 
@@ -180,7 +181,7 @@ public:
     void inorder() const { 
         inorder(root); 
     }
-A
+
 private:
     /*
      * Find the first node in the given subtree with root curr.

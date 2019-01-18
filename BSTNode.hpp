@@ -60,7 +60,7 @@ public:
     	BSTNode<Data> *curr = this;
 
 	if(right == nullptr){
-	    while(typeChild() == 1){
+	    while(typeChild(curr) == 1){
 	    	curr = curr->parent;
 	    }
 	    if(curr->parent == nullptr) {
@@ -74,7 +74,8 @@ public:
 	    	curr = curr-> left;
 	    }
 	    return curr;
-	}	    
+	}
+    }
 };
 
 /** 

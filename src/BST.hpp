@@ -67,6 +67,7 @@ public:
     	if (root == nullptr){
 	    root = new BSTNode<Data>(item);
 	    iheight++;
+	    isize++;
 	    return true;
 	}
 	int currHeight = 1;
@@ -100,6 +101,7 @@ public:
     	if (currHeight > iheight){
 	    iheight = currHeight;
 	}
+	isize++;
 	return true;
     }
 
@@ -169,7 +171,10 @@ public:
      * Returns an iterator pointing to the first item in the BST (not the root).
      */
     iterator begin() const {
-        BSTNode<Data> * curr = root;
+        if (isize == 0){
+	    return typename BST<Data>::iterator(0); 
+        }
+	BSTNode<Data> * curr = root;
 	while(curr->left != nullptr) {
 	    curr = curr->left;
 	}

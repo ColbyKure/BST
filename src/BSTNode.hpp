@@ -38,22 +38,21 @@ public:
 	if (n == nullptr) {
 	    return -1;
 	}
-        if (n->parent == nullptr) {
+	if (n->parent == nullptr) {
 	    return -1;
 	}
 	if (n->parent->left != nullptr) {
 	    if (n->parent->left == n) {
 	        return 0;
 	    }
-	}
-	else if (n->parent->right != nullptr) {
-	    if (n->parent->right == n) {
+	    else {
 	        return 1;
 	    }
 	}
-	return -1;
-    }
-     
+	else {
+	    return 1;
+	}
+    } 
 
     /**
      * Find the successor this node.

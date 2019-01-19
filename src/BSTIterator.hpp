@@ -61,7 +61,6 @@ public:
 	    return true;
 	}
 	else{
-	    cout << "this is false" << endl;	    
 	    return false;
 	}
     }

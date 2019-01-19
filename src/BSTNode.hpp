@@ -20,13 +20,40 @@ public:
     BSTNode<Data> *right;
     BSTNode<Data> *parent;
     Data const data;
-
+    
     /** 
      * Constructor that initializes a BSTNode with the given data.
      */
     BSTNode(const Data &d) : data(d) {
         left = right = parent = nullptr;
     }
+
+    /**
+     * This function will tell what type of child 
+     * return -1 - not child
+     * return 0 - left child
+     * return 1 - right child
+     */
+    static int typeChild(BSTNode<Data> * n) {
+	if (n == nullptr) {
+	    return -1;
+	}
+        if (n->parent == nullptr) {
+	    return -1;
+	}
+	if (n->parent->left != nullptr) {
+	    if (n->parent->left == n) {
+	        return 0;
+	    }
+	}
+	else if (n->parent->right != nullptr) {
+	    if (n->parent->right == n) {
+	        return 1;
+	    }
+	}
+	return -1;
+    }
+     
 
     /**
      * Find the successor this node.
@@ -38,8 +65,32 @@ public:
      *     the BSTNode that is the successor of this BSTNode,
      *     or 0 if there is none (this is the last node in the BST).
      */
-    // TODO
-    BSTNode<Data> *successor() {}
+    BSTNode<Data> *successor() {
+    	BSTNode<Data> *curr = this;
+	if (curr == nullptr){
+	    return 0;	
+	}
+	if(right == nullptr){
+	    while(typeChild(curr) == 1){
+	    	curr = curr->parent;
+	    }
+	    if(curr->parent == nullptr) {
+		return 0;
+	    }
+	    return curr->parent;
+	}
+
+	//when there is a right child
+	else{
+	    curr = right;
+
+	    while (curr->left != nullptr){
+	    	curr = curr->left;
+	    }
+
+	    return curr;
+	}
+    }
 };
 
 /** 

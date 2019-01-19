@@ -1,4 +1,4 @@
-//
+
 // BSTIterator.hpp
 // CSE 100 Project 1
 //
@@ -10,6 +10,7 @@
 
 #include <iterator>
 #include <list>
+#include <stdio.h>
 
 #include "BSTNode.hpp"
 
@@ -24,13 +25,14 @@ public:
     /** 
      * Constructor that initializes a BSTIterator pointing to curr. 
      */
-    // TODO
-    BSTIterator(BSTNode<Data>* curr) {}
+    BSTIterator(BSTNode<Data>* curr) {
+        this->curr = curr;
+    }
 
     /** 
      * Dereference operator. 
      */
-    Data operator*() const { 
+    Data operator*() const {
         return curr->data; 
     }
 
@@ -54,14 +56,28 @@ public:
     /** 
      * Equality test operator. 
      */  
-    // TODO
-    bool operator==(BSTIterator<Data> const& other) const {}
+    bool operator==(BSTIterator<Data> const& other) const {
+    	if(other.curr == this->curr){ //this is always a pointer
+	    return true;
+	}
+	else{
+	    cout << "this is false" << endl;	    
+	    return false;
+	}
+    }
+
 
     /** 
      * Inequality test operator. 
      */  
-    // TODO
-    bool operator!=(BSTIterator<Data> const& other) const {}
+    bool operator!=(BSTIterator<Data> const& other) const {
+    	if(other.curr != this->curr){ //this is always a pointer
+	    return true;
+	}
+	else{
+	    return false;
+	}
+    }
 };
 
 #endif  // BSTITERATOR_HPP

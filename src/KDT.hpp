@@ -2,7 +2,8 @@
 // KDT.hpp
 // CSE 100 Project 1
 //
-// Last modified by Heitor Schueroff on 01/10/2019
+// Last modified by Sunny Sun and Colby Kure on 01/19/2019
+//
 //
 
 #ifndef KDT_HPP
@@ -51,8 +52,12 @@ public:
     }
 
     /** Returns the square of the Euclidean distance between points p1 and p2 */
-    // TODO
-    static double squareDistance(const Point &p1, const Point &p2) {}
+    static double squareDistance(const Point &p1, const Point &p2) {
+        double xdistance = (p2.x-p1.x) * (p2.x-p1.x);
+        double ydistance = (p2.y-p1.y) * (p2.y-p1.y);
+        return xdistance + ydistance;
+    }
+
 };
 
 /** 
@@ -94,8 +99,34 @@ public:
      * Returns:
      *     the number of elements in the built KDT
      */
-    // TODO
-    virtual unsigned int build(vector<Point> &points) {}
+    virtual unsigned int build(vector<Point> &points) {
+        //empty vector
+        if(points.size() == 0){
+            return 0;   
+        }
+        else if(points.size() == 1){
+            root = new BSTNode<Data>(points[0]);
+            isize = 1;
+            iheight = 1;
+            return isize;
+        }
+        //sorting points on the x dimension
+        sort(points.begin(), points.end(), xLessThan);
+        int index = (points.size()-1)/2;
+        root = new BSTNode<Point>(points[index]);//median is the root of our tree
+        iheight = 1;
+        isize = 1;
+        dimension = 1; //y dimension
+        root->left = buildSubset(points, 0, index, dimension, iheight); //build left tree
+        if (root->left != nullptr){
+            root->left->parent = root;
+        }
+        root->right = buildSubset(points, index+1, points.size(), dimension, iheight); //build right tree
+        if (root->right != nullptr){
+            root->right->parent = root;
+        }
+        return isize;
+    }
 
     /** 
      * Find the nearest neighbor to a given point.
@@ -157,12 +188,45 @@ private:
      *     We gave you two methods: xLessThan and yLessThan. You may
      *     find them useful for the sort function from #include <algorithm>.
      */
-    // TODO
     BSTNode<Point> *buildSubset(vector<Point> points, 
                                 unsigned int start,
                                 unsigned int end, 
                                 unsigned int dimension,
-                                unsigned int height) {}
+                                unsigned int height) {
+        //base case
+        if (start == end-1){ //if theres only one node left
+            BSTNode<Point> *last = new BSTNode<Point>(points[start]);//median  of our subtree
+            if(height > iheight){
+                iheight = height;   
+            }
+            isize++;
+            return last; //a point
+        }
+
+        if(dimension == 0){
+            sort(point.begin(), points.end(), xLessThan);
+            dimension = 1; //y dimension    
+        }
+        else{
+            sort(point.begin(), points.end(), yLessThan);
+            dimension = 0; //x dimension    
+        }
+        int index = (points.size() - 1)/2;
+        BSTNode<Point> *curr;
+        curr = new BSTNode<Point>(points[index]);//median  of our subtree
+        isize++;
+       
+        curr->left = buildSubset(points, 0, index, dimension, height+1); //build left tree
+        if (curr->left != nullptr){
+            curr->left->parent = curr;
+        }
+        curr->right = buildSubset(points, index+1, points.size(), dimension, height+1); //build right tree
+        if (curr->right != nullptr){
+            curr->right->parent =  curr;
+        }
+       
+        return curr;
+    }
 
     /* 
      * Find the node in the subtree that is closest to the given point p

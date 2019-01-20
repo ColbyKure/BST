@@ -259,7 +259,7 @@ private:
      * PostCondition:
      *     closestPoint points to the nearest neighbor
      */
-    // TODO
+    // TODO find leaf node
     void findNNHelper(BSTNode<Point> *node, 
                       const Point &queryPoint,
                       double *smallestSquareDistance,

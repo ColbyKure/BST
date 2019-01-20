@@ -79,10 +79,57 @@ int main(int argc, char *argv[]) {
     // Resets the stream to beginning of file
     in.seekg(0, ios_base::beg);
 
-    // 
-    // TODO your main2 implementation should go here
-    //
+    // Construct a KDT
+    KDT tree;
+    string line;
+    vector<Point> points;
+    string::size_type sz;
+    double x;
+    double y;
 
+    //Read in the points from the file
+    while(getline(in, line)){
+        x = stod(line, &sz);
+        y = stod(line.substr(sz));
+        points.push_back(Point(x, y));
+    }
+        tree.build(points);
+
+    cout << "Size of tree: " << tree.size() << "\n";
+    cout << "Height of tree: " << tree.height() << "\n";
+    
+    string coord = "";
+    char response = 'y';
+
+    // Prompt user to enter a coordinate
+    while (response == 'y'){
+        cout << "Enter coordinate (x y): " << "\n";
+        getline(cin, coord);
+        x = stod(coord, &sz);
+        y = stod(coord.substr(sz));
+        Point curr(x, y); 
+        
+    // To output the result of the nearest neighbor search: 
+        
+        KDT::iterator item = tree.findNearestNeighbor(curr);
+        cout << "Nearest point in tree: " << *item << "\n"; 
+   
+        cout << "Search again? (y/n)" << "\n";
+        cin >> response;
+        cin.ignore();
+
+        if (response == 'n'){
+            break;
+        }
+
+        if (response != 'n' && response != 'y'){
+            cout << "Invalid response, existing..." << endl;
+            break;
+        }
+    
+    }
+
+    // Close the file
     if (in.is_open()) {
         in.close();
     }

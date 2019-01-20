@@ -8,7 +8,7 @@
 
 #ifndef KDT_HPP
 #define KDT_HPP
-
+#include <cstdlib>
 #include <iostream>
 #include <algorithm>
 #include <math.h>
@@ -105,7 +105,7 @@ public:
             return 0;   
         }
         else if(points.size() == 1){
-            root = new BSTNode<Data>(points[0]);
+            root = new BSTNode<Point>(points[0]);
             isize = 1;
             iheight = 1;
             return isize;
@@ -116,12 +116,12 @@ public:
         root = new BSTNode<Point>(points[index]);//median is the root of our tree
         iheight = 1;
         isize = 1;
-        dimension = 1; //y dimension
-        root->left = buildSubset(points, 0, index, dimension, iheight); //build left tree
+        int dimension = 1; //y dimension
+        root->left = buildSubset(points, 0, index, dimension, iheight+1); //build left tree
         if (root->left != nullptr){
             root->left->parent = root;
         }
-        root->right = buildSubset(points, index+1, points.size(), dimension, iheight); //build right tree
+        root->right = buildSubset(points, index+1, points.size(), dimension, iheight+1); //build right tree
         if (root->right != nullptr){
             root->right->parent = root;
         }
@@ -193,34 +193,48 @@ private:
                                 unsigned int end, 
                                 unsigned int dimension,
                                 unsigned int height) {
+        int localDimension;
         //base case
+        if (start == end){
+             return nullptr;   
+        }
+        if(height > iheight){
+            iheight = height;   
+        }
         if (start == end-1){ //if theres only one node left
             BSTNode<Point> *last = new BSTNode<Point>(points[start]);//median  of our subtree
-            if(height > iheight){
-                iheight = height;   
-            }
             isize++;
             return last; //a point
         }
 
         if(dimension == 0){
-            sort(point.begin(), points.end(), xLessThan);
-            dimension = 1; //y dimension    
+            sort(points.begin()+ start, points.begin() + end, xLessThan);
+            localDimension = 1; //y dimension    
         }
-        else{
-            sort(point.begin(), points.end(), yLessThan);
-            dimension = 0; //x dimension    
+        else if (dimension == 1){
+            sort(points.begin() + start, points.begin() + end, yLessThan);
+            localDimension = 0; //x dimension    
         }
-        int index = (points.size() - 1)/2;
+        unsigned int index = 0;
+        if(start == end) {
+            index = start;
+        }
+        else {
+            index = ((end - start - 1)/2) + start;
+        }
+
         BSTNode<Point> *curr;
         curr = new BSTNode<Point>(points[index]);//median  of our subtree
         isize++;
-       
-        curr->left = buildSubset(points, 0, index, dimension, height+1); //build left tree
+        if(start != index) {
+            curr->left = buildSubset(points, start, index, localDimension, height+1); //build left tre
+        }
         if (curr->left != nullptr){
             curr->left->parent = curr;
         }
-        curr->right = buildSubset(points, index+1, points.size(), dimension, height+1); //build right tree
+        if(index+1 != end) {
+            curr->right = buildSubset(points, index+1, end, localDimension, height+1); //build right tre
+        }
         if (curr->right != nullptr){
             curr->right->parent =  curr;
         }

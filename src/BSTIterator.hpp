@@ -58,11 +58,11 @@ public:
      */  
     bool operator==(BSTIterator<Data> const& other) const {
     	if(other.curr == this->curr){ //this is always a pointer
-	    return true;
-	}
-	else{
-	    return false;
-	}
+	        return true;
+	    }
+	    else{
+	        return false;
+	    }
     }
 
 
@@ -71,11 +71,11 @@ public:
      */  
     bool operator!=(BSTIterator<Data> const& other) const {
     	if(other.curr != this->curr){ //this is always a pointer
-	    return true;
-	}
-	else{
-	    return false;
-	}
+	        return true;
+	    }
+	    else{
+	        return false;
+	    }
     }
 };
 

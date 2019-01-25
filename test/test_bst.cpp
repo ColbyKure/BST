@@ -1,4 +1,4 @@
-//
+
 // test_bst.cpp
 // CSE 100 Project 1
 //
@@ -14,7 +14,7 @@
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
-
+#include <stdio.h>
 #include <algorithm>
 #include <vector>
 #include <string>
@@ -34,7 +34,7 @@ using namespace std;
 template <typename T>
 void test_bst(BST<T> &bst, vector<T> v, unsigned int expected_height) {
     INFO("Inserting elements into BST");
-
+    
     for (T i : v) REQUIRE(bst.insert(i));
     for (T i : v) CHECK(*(bst.find(i)) == i);
 

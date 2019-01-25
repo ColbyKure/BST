@@ -40,13 +40,13 @@ public:
      * Default destructor. Frees all memory allocated by this BST.
      */
     virtual ~BST() {
-    	if (root == 0){
-	    return;
-	}
-	else{
-	    deleteAll(root);
-	    return;
-	}
+        if (root == 0){
+            return;
+        }
+        else{
+            deleteAll(root);
+            return;
+        }
     }
 
     /** 
@@ -64,45 +64,45 @@ public:
      *     this function, false otherwise (e.g. item is a duplicate).
      */
     virtual bool insert(const Data &item) {
-    	if (root == nullptr){
-	    root = new BSTNode<Data>(item);
-	    iheight++;
-	    isize++;
-	    return true;
-	}
-	int currHeight = 1;
-	BSTNode<Data>* current = root;
-	BSTNode<Data>* prev = nullptr;
-	
-	while(current!= nullptr){	
-	    if(item < current->data){
-		prev = current;
-		current = current->left;
-	    	currHeight++;
-	    }
-	    else if (current->data < item){
-		prev = current;
-		current = current->right;
-	    	currHeight++;
-	    }
-	    else{ 
-		return false;
-	    }
-	}
-	//prev pointing what it is attached to 
-	if (item < prev->data){
-	    prev->left = new BSTNode<Data>(item);
-	    prev->left->parent = prev;
-	}
-	else {
-	    prev->right = new BSTNode<Data>(item);
-	    prev->right->parent = prev;
-	}
-    	if (currHeight > iheight){
-	    iheight = currHeight;
-	}
-	isize++;
-	return true;
+        if (root == nullptr){
+            root = new BSTNode<Data>(item);
+            iheight++;
+            isize++;
+            return true;
+        }
+        int currHeight = 1;
+        BSTNode<Data>* current = root;
+        BSTNode<Data>* prev = nullptr;
+    
+        while(current!= nullptr){   
+            if(item < current->data){
+                prev = current;
+                current = current->left;
+                currHeight++;
+            }
+            else if (current->data < item){
+                prev = current;
+                current = current->right;
+                currHeight++;
+            }
+            else{ 
+                return false;
+            }
+        }
+        //prev pointing what it is attached to 
+        if (item < prev->data){
+            prev->left = new BSTNode<Data>(item);
+            prev->left->parent = prev;
+        }
+        else {
+            prev->right = new BSTNode<Data>(item);
+            prev->right->parent = prev;
+        }
+        if (currHeight > iheight){
+            iheight = currHeight;
+        }
+        isize++;
+        return true;
     }
 
     /**
@@ -121,24 +121,24 @@ public:
      */
     virtual iterator find(const Data &item) const {
         if (root == nullptr){
-	    return typename BST<Data>::iterator(0);
-	}
+            return typename BST<Data>::iterator(0);
+        }
 
-	BSTNode<Data>* current = root;
-	
-	while(current != nullptr){	
-	    if(item < current->data){
-		current = current->left;
-	    }
-	    else if (current->data < item){
-		current = current->right;
-	    }
-	    //we found it
-	    else{ 
-		return typename BST<Data>::iterator(current);
-	    }
-	}
-	return typename BST<Data>::iterator(0);
+        BSTNode<Data>* current = root;
+    
+        while(current != nullptr){  
+            if(item < current->data){
+                current = current->left;
+            }
+            else if (current->data < item){
+                current = current->right;
+            }
+            //we found it
+            else{ 
+                return typename BST<Data>::iterator(current);
+            }
+        }
+        return typename BST<Data>::iterator(0);
     }
 
     /** 
@@ -160,11 +160,11 @@ public:
      */
     bool empty() const {
         if(root == nullptr){
-	    return true;
-	}
-	else{
-	    return false;
-	}
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     /** 
@@ -172,12 +172,12 @@ public:
      */
     iterator begin() const {
         if (isize == 0){
-	    return typename BST<Data>::iterator(0); 
+            return typename BST<Data>::iterator(0); 
         }
-	BSTNode<Data> * curr = root;
-	while(curr->left != nullptr) {
-	    curr = curr->left;
-	}
+        BSTNode<Data> * curr = root;
+        while(curr->left != nullptr) {
+            curr = curr->left;
+        }
         return typename BST<Data>::iterator(curr);  
     }
 
@@ -216,15 +216,15 @@ private:
      *     recurse left - print node data - recurse right
      */
     static void inorder(BSTNode<Data> *n) {
-    	if (n->left != nullptr) {
-	    inorder(n->left);
-	}
-	cout << n->data;
-	
-	if (n->right != nullptr) {
-	    inorder(n->right);
-	}
-	return;
+        if (n->left != nullptr) {
+            inorder(n->left);
+        }
+        cout << n->data;
+    
+        if (n->right != nullptr) {
+            inorder(n->right);
+        }
+        return;
     }
 
     /* 
@@ -236,14 +236,14 @@ private:
      *     recurse left - recurse right - delete node
      */
     static void deleteAll(BSTNode<Data> *n) {
-    	if (n->left != nullptr) {
-	    deleteAll(n->left);
-	}
-	if (n->right != nullptr) {
-	    deleteAll(n->right);
-	}
-	delete n;
-	return;
+        if (n->left != nullptr) {
+            deleteAll(n->left);
+        }
+        if (n->right != nullptr) {
+            deleteAll(n->right);
+        }
+        delete n;
+        return;
     }
 };
 

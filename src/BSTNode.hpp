@@ -35,23 +35,23 @@ public:
      * return 1 - right child
      */
     static int typeChild(BSTNode<Data> * n) {
-	if (n == nullptr) {
-	    return -1;
-	}
-	if (n->parent == nullptr) {
-	    return -1;
-	}
-	if (n->parent->left != nullptr) {
-	    if (n->parent->left == n) {
-	        return 0;
+	    if (n == nullptr) {
+	        return -1;
+	    }
+	    if (n->parent == nullptr) {
+	        return -1;
+	    }
+	    if (n->parent->left != nullptr) {
+	        if (n->parent->left == n) {
+	            return 0;
+	        }
+	        else {
+	            return 1;
+	        }
 	    }
 	    else {
 	        return 1;
 	    }
-	}
-	else {
-	    return 1;
-	}
     } 
 
     /**
@@ -66,29 +66,29 @@ public:
      */
     BSTNode<Data> *successor() {
     	BSTNode<Data> *curr = this;
-	if (curr == nullptr){
-	    return 0;	
-	}
-	if(right == nullptr){
-	    while(typeChild(curr) == 1){
-	    	curr = curr->parent;
+	    if (curr == nullptr){
+	        return 0;	
 	    }
-	    if(curr->parent == nullptr) {
-		return 0;
-	    }
-	    return curr->parent;
-	}
+	    if(right == nullptr){
+	        while(typeChild(curr) == 1){
+	    	    curr = curr->parent;
+	        }
 
-	//when there is a right child
-	else{
-	    curr = right;
-
-	    while (curr->left != nullptr){
-	    	curr = curr->left;
+	        if(curr->parent == nullptr) {
+		        return 0;
+	        }
+	        return curr->parent;
 	    }
 
-	    return curr;
-	}
+	    //when there is a right child
+	    else{
+	        curr = right;
+
+	        while (curr->left != nullptr){
+	    	    curr = curr->left;
+	        }
+	        return curr;
+	    }
     }
 };
 

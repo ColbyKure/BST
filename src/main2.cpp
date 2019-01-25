@@ -95,6 +95,7 @@ int main(int argc, char *argv[]) {
     }
         tree.build(points);
 
+    //output size then height
     cout << "Size of tree: " << tree.size() << "\n";
     cout << "Height of tree: " << tree.height() << "\n";
     
@@ -123,7 +124,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (response != 'n' && response != 'y'){
-            cout << "Invalid response, existing..." << endl;
+            cout << "Invalid response, exiting..." << endl;
             break;
         }
     

@@ -99,7 +99,7 @@ public:
      * Returns:
      *     the number of elements in the built KDT
      */
-    virtual unsigned int build(vector<Point> &points) {
+    virtual unsigned int build(vector<Point> points) {
         //empty vector
         if(points.size() == 0){
             return 0;   
@@ -112,19 +112,25 @@ public:
         }
         //sorting points on the x dimension
         sort(points.begin(), points.end(), xLessThan);
+        //find left median and make root node
         int index = (points.size()-1)/2;
         root = new BSTNode<Point>(points[index]);//median is the root of our tree
-        iheight = 1;
+        int height = 1;
         isize = 1;
         int dimension = 1; //y dimension
-        root->left = buildSubset(points, 0, index, dimension, iheight+1); //build left tree
+
+        //build left subtree
+        root->left = buildSubset(points, 0, index, dimension, height+1);
         if (root->left != nullptr){
             root->left->parent = root;
         }
-        root->right = buildSubset(points, index+1, points.size(), dimension, iheight+1); //build right tree
+
+        //build right subtree
+        root->right = buildSubset(points, index+1, points.size(), dimension, height+1);
         if (root->right != nullptr){
             root->right->parent = root;
         }
+
         return isize;
     }
 
@@ -146,8 +152,20 @@ public:
      *     an iterator pointing at the nearest neighbor, or pointing at nullptr
      *     if tree is empty
      */
-    // TODO
-    virtual iterator findNearestNeighbor(const Point &p) const {}
+    virtual iterator findNearestNeighbor(const Point &p) const {
+        if (root == nullptr){
+            return typename KDT::iterator(0);
+        }
+        if (root->right == nullptr && root->left == nullptr){
+            return typename KDT::iterator(root);    
+        }
+        double smallestSqD = numeric_limits<double>::max();
+        BSTNode<Point> * closestPoint = nullptr;
+        unsigned int dimension = 0;
+
+        findNNHelper(root, p, &smallestSqD, &closestPoint, dimension);
+        return typename KDT::iterator(closestPoint);
+    }
 
     /** 
      * For the kd-tree, the find method should not be used. Use the function
@@ -188,7 +206,7 @@ private:
      *     We gave you two methods: xLessThan and yLessThan. You may
      *     find them useful for the sort function from #include <algorithm>.
      */
-    BSTNode<Point> *buildSubset(vector<Point> points, 
+    BSTNode<Point> *buildSubset(vector<Point> &points, 
                                 unsigned int start,
                                 unsigned int end, 
                                 unsigned int dimension,
@@ -198,15 +216,18 @@ private:
         if (start == end){
              return nullptr;   
         }
+        //update height
         if(height > iheight){
             iheight = height;   
         }
         if (start == end-1){ //if theres only one node left
-            BSTNode<Point> *last = new BSTNode<Point>(points[start]);//median  of our subtree
+            //set start as new node
+            BSTNode<Point> *last = new BSTNode<Point>(points[start]);
             isize++;
             return last; //a point
         }
 
+        //sort along dimension
         if(dimension == 0){
             sort(points.begin()+ start, points.begin() + end, xLessThan);
             localDimension = 1; //y dimension    
@@ -215,6 +236,7 @@ private:
             sort(points.begin() + start, points.begin() + end, yLessThan);
             localDimension = 0; //x dimension    
         }
+
         unsigned int index = 0;
         if(start == end) {
             index = start;
@@ -222,18 +244,18 @@ private:
         else {
             index = ((end - start - 1)/2) + start;
         }
-
+        //create new node from left median
         BSTNode<Point> *curr;
         curr = new BSTNode<Point>(points[index]);//median  of our subtree
         isize++;
         if(start != index) {
-            curr->left = buildSubset(points, start, index, localDimension, height+1); //build left tre
+            curr->left = buildSubset(points, start, index, localDimension, height+1);
         }
         if (curr->left != nullptr){
             curr->left->parent = curr;
         }
         if(index+1 != end) {
-            curr->right = buildSubset(points, index+1, end, localDimension, height+1); //build right tre
+            curr->right = buildSubset(points, index+1, end, localDimension, height+1);
         }
         if (curr->right != nullptr){
             curr->right->parent =  curr;
@@ -241,6 +263,7 @@ private:
        
         return curr;
     }
+
 
     /* 
      * Find the node in the subtree that is closest to the given point p
@@ -259,12 +282,142 @@ private:
      * PostCondition:
      *     closestPoint points to the nearest neighbor
      */
-    // TODO find leaf node
     void findNNHelper(BSTNode<Point> *node, 
                       const Point &queryPoint,
                       double *smallestSquareDistance,
                       BSTNode<Point> **closestPoint,
-                      unsigned int dimension) const {}
+                      unsigned int dimension) const {
+        //first find leaf node
+        BSTNode<Point> *curr = findLeafNode(node, queryPoint, dimension);
+        double tmpDist = Point::squareDistance(curr->data, queryPoint);
+        if(tmpDist < *smallestSquareDistance) {
+            *closestPoint = curr;
+            *smallestSquareDistance = tmpDist;
+            if(tmpDist == 0) {
+                return;
+            }
+        }
+        if(checkSubtree(curr, queryPoint, smallestSquareDistance, 
+                        closestPoint, dimension)) {
+            if(curr->parent->left == curr) {
+                if(curr->parent->right != nullptr) {
+                    findNNHelper(curr->parent->right, queryPoint, 
+                                 smallestSquareDistance, closestPoint, 
+                                 dimension);
+                }
+            }
+            else {
+                if(curr->parent->left != nullptr) {
+                    findNNHelper(curr->parent->left, queryPoint, 
+                                 smallestSquareDistance, closestPoint, 
+                                 dimension);
+                }
+            }
+        }
+        /*int localDimension;
+        if(dimension == 0) {
+            localDimension = 1;
+        }
+        else {
+            localDimension = 0;
+        }*/
+        while(curr != node) {
+            curr = curr->parent;
+            double tmpDist = Point::squareDistance(curr->data, queryPoint);
+            if(tmpDist < *smallestSquareDistance) {
+                *closestPoint = curr;
+                *smallestSquareDistance = tmpDist;
+            }
+            if(checkSubtree(curr, queryPoint, smallestSquareDistance, 
+                            closestPoint, dimension)) {
+                if(curr->parent->left == curr) {
+                    if(curr->parent->right != nullptr) {
+                        findNNHelper(curr->parent->right, queryPoint, 
+                                     smallestSquareDistance, closestPoint, 
+                                     dimension);
+                    }
+                }
+                else {
+                    if(curr->parent->left != nullptr) {
+                        findNNHelper(curr->parent->left, queryPoint, 
+                                     smallestSquareDistance, closestPoint, 
+                                     dimension);
+                    }
+                }
+            }
+        }
+        return;
+    }
+
+    static BSTNode<Point> *findLeafNode(BSTNode<Point> *node, 
+                                        const Point &queryPoint,
+                                        unsigned int dimension) {
+        BSTNode<Point> *leaf;
+        if(dimension == 0) {
+            if(xLessThan(queryPoint, node->data)) {
+                if(node->left == nullptr){
+                    return node;
+                }
+                else {
+                    leaf = findLeafNode(node->left, queryPoint, 1);
+                }
+            }
+            else { //go right
+                if(node->right == nullptr){
+                    return node;
+                }
+                else {
+                    leaf =findLeafNode(node->right, queryPoint, 1);
+                }
+            }
+        }
+        else {
+            if(yLessThan(queryPoint, node->data)) {
+                if(node->left == nullptr){
+                    return node;
+                }
+                else {
+                    leaf = findLeafNode(node->left, queryPoint, 0);
+                }
+            }
+            else { //go right
+                if(node->right == nullptr){
+                    return node;
+                }
+                else {
+                    leaf = findLeafNode(node->right, queryPoint, 0);
+                }
+            }
+        }
+
+        return leaf;
+    }
+    
+    static bool checkSubtree(BSTNode<Point> *node, const Point &queryPoint, 
+                      double *smallestSquareDistance, 
+                      BSTNode<Point> **closestPoint, unsigned int dimension) {
+        if(node->parent == nullptr) {
+            return false;
+        }
+        double distance = Point::squareDistance(queryPoint, node->parent->data);
+        if(distance < *smallestSquareDistance) {
+            *closestPoint = node->parent;
+            *smallestSquareDistance = distance;
+        }
+        double boundaryDist;
+        if(dimension == 0) {
+            boundaryDist = (node->data.x - queryPoint.x);
+            boundaryDist = boundaryDist * boundaryDist; 
+        }
+        else { //check y dim
+            boundaryDist = abs(node->data.y - queryPoint.y);
+            boundaryDist = boundaryDist * boundaryDist; 
+        }
+        if(boundaryDist < *smallestSquareDistance) {
+            return true;
+        }
+        return false;
+    }
 };
 
 #endif  // KDT_HPP

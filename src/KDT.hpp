@@ -282,13 +282,17 @@ private:
      * PostCondition:
      *     closestPoint points to the nearest neighbor
      */
-    void findNNHelper(BSTNode<Point> *node, 
+    void findNNHelper(BSTNode<Point> *top, 
                       const Point &queryPoint,
                       double *smallestSquareDistance,
                       BSTNode<Point> **closestPoint,
                       unsigned int dimension) const {
-        //first find leaf node
-        BSTNode<Point> *curr = findLeafNode(node, queryPoint, dimension);
+        if(top == nullptr) {
+            return;
+        }
+        unsigned int localDim = dimension;
+        BSTNode<Point> *curr = findLeafNode(top, queryPoint, &localDim);
+
         double tmpDist = Point::squareDistance(curr->data, queryPoint);
         if(tmpDist < *smallestSquareDistance) {
             *closestPoint = curr;
@@ -297,69 +301,58 @@ private:
                 return;
             }
         }
-        if(checkSubtree(curr, queryPoint, smallestSquareDistance, 
-                        closestPoint, dimension)) {
-            if(curr->parent->left == curr) {
-                if(curr->parent->right != nullptr) {
-                    findNNHelper(curr->parent->right, queryPoint, 
-                                 smallestSquareDistance, closestPoint, 
-                                 dimension);
-                }
+        while(true) {
+            if(curr->parent == nullptr) {
+                return;
             }
-            else {
-                if(curr->parent->left != nullptr) {
-                    findNNHelper(curr->parent->left, queryPoint, 
-                                 smallestSquareDistance, closestPoint, 
-                                 dimension);
-                }
+            if(curr == top) {
+                return;
             }
-        }
-        /*int localDimension;
-        if(dimension == 0) {
-            localDimension = 1;
-        }
-        else {
-            localDimension = 0;
-        }*/
-        while(curr != node) {
-            curr = curr->parent;
-            double tmpDist = Point::squareDistance(curr->data, queryPoint);
+            tmpDist = Point::squareDistance(curr->parent->data, queryPoint);
             if(tmpDist < *smallestSquareDistance) {
-                *closestPoint = curr;
+                *closestPoint = curr->parent;
                 *smallestSquareDistance = tmpDist;
-            }
-            if(checkSubtree(curr, queryPoint, smallestSquareDistance, 
-                            closestPoint, dimension)) {
-                if(curr->parent->left == curr) {
-                    if(curr->parent->right != nullptr) {
-                        findNNHelper(curr->parent->right, queryPoint, 
-                                     smallestSquareDistance, closestPoint, 
-                                     dimension);
-                    }
-                }
-                else {
-                    if(curr->parent->left != nullptr) {
-                        findNNHelper(curr->parent->left, queryPoint, 
-                                     smallestSquareDistance, closestPoint, 
-                                     dimension);
-                    }
+                if(tmpDist == 0) {
+                    return;
                 }
             }
-        }
-        return;
-    }
 
+            BSTNode<Point> *other;
+            if(localDim == 0) {
+                tmpDist = curr->parent->data.y - queryPoint.y;
+                tmpDist = tmpDist * tmpDist;
+                if(tmpDist < *smallestSquareDistance) {
+                    other = getOther(curr);
+                    findNNHelper(other, queryPoint, smallestSquareDistance,
+                                 closestPoint, localDim);
+                }
+            }
+            else { //dimension == 1
+                tmpDist = curr->parent->data.y - queryPoint.y;
+                tmpDist = tmpDist * tmpDist;
+                if(tmpDist < *smallestSquareDistance) {
+                    other = getOther(curr);
+                    findNNHelper(other, queryPoint, smallestSquareDistance,
+                                 closestPoint, localDim);
+                }
+            }
+            curr = curr->parent;
+        }
+    }
+        
+    //finds the leaf of node according to query point
     static BSTNode<Point> *findLeafNode(BSTNode<Point> *node, 
                                         const Point &queryPoint,
-                                        unsigned int dimension) {
+                                        unsigned int *dimension) {
         BSTNode<Point> *leaf;
-        if(dimension == 0) {
+        if(*dimension == 0) {
+            *dimension = 1;
             if(xLessThan(queryPoint, node->data)) {
                 if(node->left == nullptr){
                     return node;
                 }
                 else {
-                    leaf = findLeafNode(node->left, queryPoint, 1);
+                    leaf = findLeafNode(node->left, queryPoint, dimension);
                 }
             }
             else { //go right
@@ -367,17 +360,18 @@ private:
                     return node;
                 }
                 else {
-                    leaf =findLeafNode(node->right, queryPoint, 1);
+                    leaf =findLeafNode(node->right, queryPoint, dimension);
                 }
             }
         }
         else {
+            *dimension = 0;
             if(yLessThan(queryPoint, node->data)) {
                 if(node->left == nullptr){
                     return node;
                 }
                 else {
-                    leaf = findLeafNode(node->left, queryPoint, 0);
+                    leaf = findLeafNode(node->left, queryPoint, dimension);
                 }
             }
             else { //go right
@@ -385,7 +379,7 @@ private:
                     return node;
                 }
                 else {
-                    leaf = findLeafNode(node->right, queryPoint, 0);
+                    leaf = findLeafNode(node->right, queryPoint, dimension);
                 }
             }
         }
@@ -393,30 +387,12 @@ private:
         return leaf;
     }
     
-    static bool checkSubtree(BSTNode<Point> *node, const Point &queryPoint, 
-                      double *smallestSquareDistance, 
-                      BSTNode<Point> **closestPoint, unsigned int dimension) {
-        if(node->parent == nullptr) {
-            return false;
+    //return other child
+    static BSTNode<Point> *getOther(BSTNode<Point> *node) {
+        if(node->parent->left == node) {
+            return node->parent->right;
         }
-        double distance = Point::squareDistance(queryPoint, node->parent->data);
-        if(distance < *smallestSquareDistance) {
-            *closestPoint = node->parent;
-            *smallestSquareDistance = distance;
-        }
-        double boundaryDist;
-        if(dimension == 0) {
-            boundaryDist = (node->data.x - queryPoint.x);
-            boundaryDist = boundaryDist * boundaryDist; 
-        }
-        else { //check y dim
-            boundaryDist = abs(node->data.y - queryPoint.y);
-            boundaryDist = boundaryDist * boundaryDist; 
-        }
-        if(boundaryDist < *smallestSquareDistance) {
-            return true;
-        }
-        return false;
+        return node->parent->left;
     }
 };
 
